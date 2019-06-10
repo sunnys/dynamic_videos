@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import File from './../File/File';
 import io from '../../helpers/io';
 import VideoStatus from '../File/VideoStatus';
+import axios, { post } from 'axios';
 
 export default class DropFileInput extends Component {
 	constructor(props) {
@@ -16,6 +17,8 @@ export default class DropFileInput extends Component {
 		}
 
 		this.updateUserList = this.updateUserList.bind(this);
+		this.handleUploadImage = this.handleUploadImage.bind(this);
+		this.uploadFile = this.uploadFile.bind(this);
 	}
 
 	updateUserList = user_lists => {
@@ -45,7 +48,7 @@ export default class DropFileInput extends Component {
 		data.append('file', file);
 		data.append('filename', 'this.fileName.value');
 		data.append('sid', "22222");
-	
+		console.log(data);
 		fetch('http://localhost:5000/upload', {
 		  method: 'POST',
 		  body: data,
@@ -57,6 +60,22 @@ export default class DropFileInput extends Component {
 		});
 	}
 	
+	uploadFile = () => {
+		let file = this.state.files[0];
+		const data = new FormData();
+		data.append('file', file);
+		data.append('filename', 'this.fileName.value');
+		data.append('sid', "22222");
+		console.log(data);
+		const url = 'http://localhost:5000/upload';
+		const config = {
+			headers: {
+				'content-type': 'multipart/form-data'
+			}
+		}
+		return  post(url, data , config)
+	}
+
 	handlerOnDragOver = event => {
 		event.preventDefault();
 	};
@@ -80,6 +99,8 @@ export default class DropFileInput extends Component {
 		this.setState({
 			files: [...this.state.files, ...array_files],
 			uploading: false
+		}, () => {
+			this.uploadFile();
 		});
 	};
 	
@@ -120,7 +141,7 @@ export default class DropFileInput extends Component {
 		
 		return (
 			<div>
-				<div className="Drop-input" onDragOver={this.handlerOnDragOver} onDrop={this.handleUploadImage}>
+				<div className="Drop-input" onDragOver={this.handlerOnDragOver} onDrop={this.handlerOnDrop}>
 					Drop files here!
 				</div>
 				<div className="Div-files">
