@@ -1,0 +1,96 @@
+version: '3.3'
+
+services:
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: web
+    command: 'python www.py'
+    volumes:
+      - .:/app 
+    ports:
+      - "5000:5000"
+    links:
+      - rabbit
+
+  worker:
+    build:
+      context: .
+    command: "celery -A tasks worker --loglevel INFO"
+    volumes:
+      - .:/app
+    links:
+      - rabbit
+    depends_on:
+      - rabbit
+
+  react_site:
+    container_name: react_sample
+    build:
+      context: .
+      dockerfile: ReactDockerfile
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+
+  # web:
+  #   build: .
+  #   container_name: web
+  #   ports:
+  #     - '5000:5000'
+  #   command: python server.py run -h 0.0.0.0
+  #   volumes:
+  #     - .:/usr/src/app
+  #   environment:
+  #     - FLASK_DEBUG=1
+  #     - APP_SETTINGS=project.server.config.DevelopmentConfig
+  #   depends_on:
+  #     - redis
+
+  # react_sample:
+  #   container_name: react_sample
+  #   build:
+  #     context: .
+  #     dockerfile: ReactDockerfile
+  #   volumes:
+  #     - '.:/app'
+  #     - '/app/node_modules'
+  #   ports:
+  #     - '3001:3000'
+  #   environment:
+  #     - NODE_ENV=development
+  #     - CHOKIDAR_USEPOLLING=true
+
+  # worker:
+  #   image: web
+  #   command: python server.py run_worker
+  #   volumes:
+  #     - .:/usr/src/app
+  #   environment:
+  #     - APP_SETTINGS=project.server.config.DevelopmentConfig
+  #   depends_on:
+  #     - redis
+
+  # redis:
+  #   image: redis:5.0.5-alpine
+
+  # dashboard:
+  #   build: ./app/dashboard
+  #   image: dashboard
+  #   container_name: dashboard
+  #   ports:
+  #     - '9181:9181'
+  #   command: rq-dashboard -H redis
