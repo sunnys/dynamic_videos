@@ -23,7 +23,7 @@ socketio = SocketIO(message_queue='amqp://admin:mypass@rabbit:5672/')
 def construct_subclip(index, my_text, video, id):
     ukulele = video
     w,h = moviesize = ukulele.size
-    txt = TextClip(my_text, font='Amiri-regular', color='white',fontsize=24)
+    txt = TextClip(my_text, font='DejaVu-Serif', color='white',fontsize=24)
     txt_col = txt.on_color(size=(ukulele.w + txt.w,txt.h+10), color=(0,0,0), pos=(6,'center'), col_opacity=0.6)
     txt_mov = txt_col.set_pos( lambda t: (max(w/30,int(w-0.5*w*t)), max(5*h/6,int(100*t))) )
     result = CompositeVideoClip([video, txt_mov])

@@ -24,6 +24,7 @@ services:
   worker:
     build:
       context: .
+      dockerfile: Dockerfile
     command: "celery -A tasks worker --loglevel INFO"
     volumes:
       - .:/app
